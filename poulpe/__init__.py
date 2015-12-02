@@ -3,7 +3,7 @@ import subprocess
 
 __author__ = 'Edouard Klein'
 __email__ = 'edou -at- rdklein.fr'
-__version__ = '0.0.0'
+__version__ = '0.0.1'
 
 
 def cmd(c):
