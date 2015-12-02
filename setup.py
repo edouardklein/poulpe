@@ -25,7 +25,7 @@ test_requirements = [
 
 setup(
     name='poulpe',
-    version='0.0.1',
+    version='0.0.2',
     description="Automatic criminal analysis graph generator",
     long_description=readme + '\n\n' + history,
     author="Edouard Klein",
