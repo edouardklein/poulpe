@@ -15,7 +15,8 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
 requirements = [
-    'docopt'
+    'docopt',
+    'python-magic',
 ]
 
 test_requirements = [
@@ -35,7 +36,7 @@ setup(
     ],
     package_dir={'poulpe':
                  'poulpe'},
-    entry_points={'console_scripts': ['poulpe = poulpe.poulpe:main'],},
+    entry_points={'console_scripts': ['poulpe = poulpe.main:main'],},
     include_package_data=True,
     install_requires=requirements,
     license='AGPL',

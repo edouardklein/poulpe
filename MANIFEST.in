@@ -10,4 +10,6 @@ recursive-exclude * *.py[co]
 
 recursive-include docs *.rst conf.py Makefile make.bat
 
-recursive-include .git *
+include poulpe/post-commit
+
+recursive-include poulpe/artefacts *

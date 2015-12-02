@@ -16,13 +16,10 @@ def init():
     dst_dir = os.getcwd()
     logging.info('Creating a new case')
     cmd('git init')
-    cmd('git remote add origin '+src_dir)
-    cmd('git fetch')
-    cmd('git checkout -t origin/master')
-    cmd('ln -s '+src_dir+'/poulpe/post-commit ' + dst_dir +
+    cmd('ln -s '+src_dir+'/post-commit ' + dst_dir +
         '/.git/hooks/')
     cmd('mkdir '+dst_dir+'/.git/artefacts')
-    cmd('ln -s '+src_dir+'/src/artefacts/* '+dst_dir+'/.git/artefacts/')
+    cmd('ln -s '+src_dir+'/artefacts/* '+dst_dir+'/.git/artefacts/')
 
 
 def main():

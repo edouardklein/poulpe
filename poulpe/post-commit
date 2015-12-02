@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+import logging
+from glob import glob
+import os
+from poulpe import cmd
+logging.basicConfig(level=logging.INFO)
+
+
+CWD = os.getcwd()
+
+# List all blobs from commit :
+# Code from http://stackoverflow.com/questions/1314950/git-get-all-commits
+# -and-blobs-they-created
+commit = cmd('git rev-list --max-count=1 --pretty=oneline HEAD').split(' ')[0]
+logging.info('processing commit '+commit)
+# We take all the files that this commit modified/created
+files = cmd('git diff-tree --no-commit-id --name-only -r '+commit).split('\n')
+files = [f for f in files if f != '']
+
+# Run all artefacts programs on each file
+for art in glob(CWD+'/.git/artefacts/*'):
+    logging.info('Running artefact finder for '+art)
+    for fname in files:
+        logging.info('on file : '+fname)
+        cmd(art+' index "'+fname+'" '+CWD+'/index')
