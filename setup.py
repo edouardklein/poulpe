@@ -35,6 +35,7 @@ setup(
     ],
     package_dir={'poulpe':
                  'poulpe'},
+    entry_points={'console_scripts': ['poulpe = poulpe.poulpe:main'],},
     include_package_data=True,
     install_requires=requirements,
     license='AGPL',
