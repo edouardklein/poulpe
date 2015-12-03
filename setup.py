@@ -17,6 +17,8 @@ with open('HISTORY.rst') as history_file:
 requirements = [
     'docopt',
     'python-magic',
+    'tulip-python',
+    'tulipgui-python'
 ]
 
 test_requirements = [
