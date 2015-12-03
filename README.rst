@@ -29,14 +29,3 @@ Features
 
 * Intuitive graph visualization for easy information management
 * Seamless workflow integration : just version control your files, The Poulpe will take care of everything.
-
-Credits
----------
-
-Tools used in rendering this package:
-
-*  Cookiecutter_
-*  `cookiecutter-pypackage`_
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage

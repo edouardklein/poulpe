@@ -2,11 +2,6 @@
 Installation
 ============
 
-At the command line::
+Symply call::
 
-    $ easy_install poulpe
-
-Or, if you have virtualenvwrapper installed::
-
-    $ mkvirtualenv poulpe
     $ pip install poulpe
