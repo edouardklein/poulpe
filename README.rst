@@ -21,7 +21,14 @@ Automatic criminal analysis graph generator
 Features
 --------
 
-* TODO
+* All of Git's power for decentralized collaborative work, including :
+
+  * Secure and efficient data transfers
+  * History and cryptographically secure accountability
+  * Branching
+
+* Intuitive graph visualization for easy information management
+* Seamless workflow integration : just version control your files, The Poulpe will take care of everything.
 
 Credits
 ---------
