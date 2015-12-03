@@ -1,0 +1,6 @@
+#This file contain examples of the artefacts the Poulpe is able to detect.
+emails, test@example.com
+domains, example.com
+IPs, 192.0.2.42
+Bitcoin addresses, 12y8yWJbAxuJWePS1msTzkggvaVgnKbbGX
+
