@@ -3,7 +3,7 @@ import logging
 from glob import glob
 import os
 from poulpe import cmd
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 
 CWD = os.getcwd()

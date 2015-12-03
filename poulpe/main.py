@@ -6,7 +6,7 @@ poulpe viz <graph_file>
 from docopt import docopt
 import os
 import logging
-from poulpe import cmd
+from poulpe import cmd, lines
 from tulip import *
 from tulipogl import *
 from tulipgui import *
@@ -15,12 +15,6 @@ from glob import glob
 
 
 logging.basicConfig(level=logging.INFO)
-
-
-def lines(fname):
-    '''Return the list of the stripped non blank lines in fname'''
-    return [l.strip() for l in
-            open(fname, 'r').read().split('\n') if l != '']
 
 
 def parse_index(index):

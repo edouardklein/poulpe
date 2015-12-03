@@ -5,109 +5,16 @@ Usage:
     IPv4 index <file> <index>
 '''
 from docopt import docopt
-import re
-import os
 import logging
-import magic
-import subprocess
-import shlex
+from poulpe import artefact
 
-logging.basicConfig(level=logging.INFO)
-
-
-def cmd(c, raw=False):
-    '''Run the command in a shell'''
-    b = subprocess.check_output(c, shell=True)
-    if not raw:
-        return b.decode('utf8')
-    return b
-
-
-
-def find_ipv4(text):
-    '''Return all instances of IPv4 addresses found in text'''
-    all_ips = re.findall('\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', text)
-    return set(all_ips)
-
-
-
-def ip_blob_fname(index, ip):
-    '''Return the filename for the IP record'''
-    return index+'/IPv4/'+ip
-
-
-def blob_file_fname(index, blob):
-    '''Return the filename for the blob file record'''
-    return '/'.join([index, 'objects', blob, 'files'])
-
-
-def blob_ip_fname(index, blob):
-    '''Return the filename for the blob ip record'''
-    return '/'.join([index, 'objects', blob, 'IPv4'])
-
-
-def check_ip_blob(index, ip, blob):
-    '''Check if we already know that ip is in this blob'''
-    if not os.path.isfile(ip_blob_fname(index, ip)):
-        return False
-    with open(ip_blob_fname(index, ip), 'r') as f:
-        l = f.read().split("\n")
-        if blob not in l:
-            return False
-        else:
-            return True
-
-
-def check_blob_file(index, blob, fname):
-    '''Check if we already know that this blob describes this file's contents'''
-    if not os.path.isfile(blob_file_fname(index, blob)):
-        return False
-    with open(blob_file_fname(index, blob), 'r') as f:
-        l = f.read().split("\n")
-        if fname not in l:
-            return False
-        else:
-            return True
-
-
-def check_blob_ip(index, blob, ip):
-    '''Check if we already know that blob contains this IP'''
-    if not os.path.isfile(blob_ip_fname(index, blob)):
-        return False
-    with open(blob_ip_fname(index, blob), 'r') as f:
-        l = f.read().split("\n")
-        if ip not in l:
-            return False
-        else:
-            return True
-
-
-def add_record(index, ip, fname):
-    '''Inform the index that ip was seen in this file'''
-    blob = cmd("git hash-object "+shlex.quote(fname)).strip()
-    if not check_ip_blob(index, ip, blob):
-        with open(ip_blob_fname(index, ip), 'a') as f:
-            f.write(blob+'\n')
-    if not check_blob_file(index, blob, fname):
-        os.makedirs(os.path.dirname(blob_file_fname(index, blob)), exist_ok=True)
-        with open(blob_file_fname(index, blob), 'a') as f:
-            f.write(fname+'\n')
-    if not check_blob_ip(index, blob, ip):
-        with open(blob_ip_fname(index, blob), 'a') as f:
-            f.write(ip+'\n')
+logging.basicConfig(level=logging.DEBUG)
 
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version='cthulu 0.0.0')
+    arguments = docopt(__doc__)
     fname = arguments['<file>']
     index = arguments['<index>']
-    if not os.path.isdir(index+'/IPv4'):
-        logging.warn('Creating IPv4 index at '+index+'/IPv4/')
-        cmd('mkdir -p '+index+'/IPv4/')
-    mime = str(magic.Magic(mime=True).from_file(fname))
-    logging.info('MIME Type : '+mime)
-    if not 'text' in mime:
-        exit(0)
-    text = open(fname, 'r', encoding='utf8').read()
-    for ip in find_ipv4(text):
-        add_record(index, ip, fname)
+    artefact.validate(index, 'IPv4')
+    artefact.index_regex(index, fname, 'IPv4',
+                         '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}')
