@@ -66,6 +66,8 @@ def update_graph_with_index(graph, index):
             view_icon.setNodeValue(node, tlp.TulipFontAwesome.Envelope)
         elif shape == 'domain':
             view_icon.setNodeValue(node, tlp.TulipFontAwesome.MapSigns)
+        elif shape == 'BTC':
+            view_icon.setNodeValue(node, tlp.TulipFontAwesome.Dollar)
         else:
             view_icon.setNodeValue(node, tlp.TulipFontAwesome.Stop)
 
