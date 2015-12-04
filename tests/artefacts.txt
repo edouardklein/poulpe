@@ -3,4 +3,5 @@ emails, test@example.com
 domains, example.com
 IPs, 192.0.2.42
 Bitcoin addresses, 12y8yWJbAxuJWePS1msTzkggvaVgnKbbGX
+onion domains,  http://3g2upl4pq6kufc4m.onion
 

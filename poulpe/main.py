@@ -47,6 +47,7 @@ def update_graph_with_index(graph, index):
     view_shape = graph.getIntegerProperty('viewShape')
     view_icon = graph.getStringProperty('viewFontAwesomeIcon')
     view_label = graph.getStringProperty('viewLabel')
+    view_texture = graph.getStringProperty('viewTexture')
     blob2fnames, artefact2blobs = parse_index(index)
 
     known_names = set(name_prop.getNodeValue(n) for n in graph.getNodes())
@@ -68,6 +69,9 @@ def update_graph_with_index(graph, index):
             view_icon.setNodeValue(node, tlp.TulipFontAwesome.MapSigns)
         elif shape == 'BTC':
             view_icon.setNodeValue(node, tlp.TulipFontAwesome.Dollar)
+        elif shape == 'onion':
+            view_shape.setNodeValue(node, tlp.NodeShape.Billboard)
+            view_texture.setNodeValue(node, os.getcwd()+'/.git/icons/onion.png')
         else:
             view_icon.setNodeValue(node, tlp.TulipFontAwesome.Stop)
 
@@ -108,6 +112,8 @@ def init():
         '/.git/hooks/')
     cmd('mkdir '+dst_dir+'/.git/artefacts')
     cmd('ln -s '+src_dir+'/artefacts/* '+dst_dir+'/.git/artefacts/')
+    cmd('mkdir '+dst_dir+'/.git/icons')
+    cmd('ln -s '+src_dir+'/img/* '+dst_dir+'/.git/icons/')
 
 
 def main():

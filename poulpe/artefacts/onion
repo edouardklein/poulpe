@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+'''onion Artefact.
+
+Usage:
+    onion index <file> <index>
+'''
+from docopt import docopt
+import logging
+from poulpe import artefact
+
+logging.basicConfig(level=logging.DEBUG)
+
+
+# We should, in theory, be doing things properly,
+# but a quick and dirty regex will do the job
+# just as well until a counter example comes
+# to bite us in the ass
+# https://bitcointalk.org/index.php?topic=1026.0
+
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__)
+    fname = arguments['<file>']
+    index = arguments['<index>']
+    artefact.validate(index, 'onion')
+    artefact.index_regex(index, fname, 'onion',
+                         '[_\-0-9a-z]+\.onion')

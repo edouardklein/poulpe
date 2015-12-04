@@ -13,3 +13,5 @@ recursive-include docs *.rst conf.py Makefile make.bat
 include poulpe/post-commit
 
 recursive-include poulpe/artefacts *
+
+include poulpe/img/onion.png
