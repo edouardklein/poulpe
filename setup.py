@@ -18,7 +18,9 @@ requirements = [
     'docopt',
     'python-magic',
     'tulip-python',
-    'tulipgui-python'
+    'tulipgui-python',
+    'pdfminer.six',
+    'six'
 ]
 
 test_requirements = [

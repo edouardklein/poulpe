@@ -5,6 +5,8 @@ from .util import cmd, lines
 import magic
 import re
 import shlex
+from pdfminer import high_level
+import io
 
 
 def validate(index, artefact_type):
@@ -19,9 +21,15 @@ def text_data(fname):
     '''Return the text in fname, with best effort conversion'''
     mime = str(magic.Magic(mime=True).from_file(fname))
     logging.info('MIME Type : '+mime)
-    if 'text' not in mime:
+    if 'text' in mime:
+        return open(fname, 'r', encoding='utf8').read()
+    elif 'pdf' in mime:
+        s = io.StringIO()
+        high_level.extract_text_to_fp(open(fname, 'rb'), s)
+        s.seek(0)
+        return s.read()
+    else:
         return ''
-    return open(fname, 'r', encoding='utf8').read()
 
 
 def artefact_fname(index, artefact_type, artefact):
