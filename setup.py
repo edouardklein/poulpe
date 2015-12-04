@@ -20,7 +20,9 @@ requirements = [
     'tulip-python',
     'tulipgui-python',
     'pdfminer.six',
-    'six'
+    'six',
+    'ezodf',
+    'lxml'
 ]
 
 test_requirements = [

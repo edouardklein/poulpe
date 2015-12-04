@@ -6,6 +6,8 @@ import magic
 import re
 import shlex
 from pdfminer import high_level
+import ezodf
+from lxml import etree
 import io
 
 
@@ -21,20 +23,23 @@ def text_data(fname):
     '''Return the text in fname, with best effort conversion'''
     mime = str(magic.Magic(mime=True).from_file(fname))
     logging.info('MIME Type : '+mime)
-    if 'text' in mime:
+    if 'text/' in mime:
         return open(fname, 'r', encoding='utf8').read()
     elif 'pdf' in mime:
         s = io.StringIO()
         high_level.extract_text_to_fp(open(fname, 'rb'), s)
         s.seek(0)
         return s.read()
+    elif 'opendocument' in mime:
+        doc = ezodf.opendoc(fname)
+        return etree.tostring(doc.content.xmlnode, pretty_print=True).decode('utf8')
     else:
         return ''
 
 
 def artefact_fname(index, artefact_type, artefact):
     '''Return the filename in which to record the blobs artefact is in'''
-    return '/'.join([index, artefact_type, artefact])
+    return '/'.join([index, artefact_type, artefact.replace('/','')])
 
 
 def art_in_blob(index, artefact_type, artefact, blob):
