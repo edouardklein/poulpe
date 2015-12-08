@@ -60,7 +60,10 @@ def update_graph_with_index(graph, index):
         view_shape.setNodeValue(node, tlp.NodeShape.FontAwesomeIcon)
         shape = name.split(':')[0]
         if shape == 'file':
-            view_icon.setNodeValue(node, tlp.TulipFontAwesome.File)
+            if name.split(':')[1][:2] == 'PV':
+                view_icon.setNodeValue(node, tlp.TulipFontAwesome.Legal)
+            else:
+                view_icon.setNodeValue(node, tlp.TulipFontAwesome.File)
         elif shape == 'IPv4':
             view_icon.setNodeValue(node, tlp.TulipFontAwesome.Desktop)
         elif shape == 'email':
