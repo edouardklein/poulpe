@@ -24,6 +24,9 @@ class TestPoulpe(unittest.TestCase):
     def test_000_something(self):
         pass
 
+# One day I'll do real tests :
+# cd ..; rm -rf test; mkdir test; cd test; poulpe init; cp /Volumes/KINGSTON/edouard/src/poulpe/tests/artefacts.txt ./ ;touch .gitignore; git add .gitignore ; git commit -m "Initial commit" ; git add artefacts.txt ; git commit -m "first file"
+
 
 if __name__ == '__main__':
     import sys
