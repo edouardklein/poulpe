@@ -23,7 +23,7 @@ def text_data(fname):
     '''Return the text in fname, with best effort conversion'''
     mime = str(magic.Magic(mime=True).from_file(fname))
     logging.info('MIME Type : '+mime)
-    if 'text/' in mime:
+    if 'text/' in mime or 'rfc822' in mime:
         return open(fname, 'r', encoding='utf8').read()
     elif 'pdf' in mime:
         s = io.StringIO()
