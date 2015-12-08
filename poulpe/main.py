@@ -117,6 +117,9 @@ def init():
     cmd('ln -s '+src_dir+'/artefacts/* '+dst_dir+'/.git/artefacts/')
     cmd('mkdir '+dst_dir+'/.git/icons')
     cmd('ln -s '+src_dir+'/img/* '+dst_dir+'/.git/icons/')
+    cmd('touch .gitignore')
+    cmd('git add .gitignore')
+    cmd('git commit -m "Initial commit"')
 
 
 def main():
