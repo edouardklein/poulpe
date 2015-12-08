@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import os
 
 try:
     from setuptools import setup
@@ -14,11 +14,13 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
+tulip = [
+    'tulip-python',
+    'tulipgui-python']
+
 requirements = [
     'docopt',
     'python-magic',
-    'tulip-python',
-    'tulipgui-python',
     'pdfminer.six',
     'six',
     'ezodf',
@@ -44,7 +46,9 @@ setup(
                  'poulpe'},
     entry_points={'console_scripts': ['poulpe = poulpe.main:main'],},
     include_package_data=True,
-    install_requires=requirements,
+    # Only require tulip if 'pip install tulip' works on the system
+    # (currently (End of 2015), only MacOSX and Windows are supported)
+    install_requires=requirements if os.uname()[0] == 'Linux' else requirements+tulip,
     license='AGPL',
     zip_safe=False,
     keywords='poulpe',
