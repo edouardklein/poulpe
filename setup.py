@@ -14,11 +14,9 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
-tulip = [
-    'tulip-python',
-    'tulipgui-python']
 
 requirements = [
+    'sphinx',
     'docopt',
     'python-magic',
     'pdfminer.six',
@@ -26,6 +24,13 @@ requirements = [
     'ezodf',
     'lxml'
 ]
+
+try:
+    import tulip
+except Exception as e:
+    requirements.extend([
+        'tulip-python',
+        'tulipgui-python'])
 
 test_requirements = [
     # TODO: put package test requirements here
@@ -48,7 +53,7 @@ setup(
     include_package_data=True,
     # Only require tulip if 'pip install tulip' works on the system
     # (currently (End of 2015), only MacOSX and Windows are supported)
-    install_requires=requirements if os.uname()[0] == 'Linux' else requirements+tulip,
+    install_requires=requirements,
     license='AGPL',
     zip_safe=False,
     keywords='poulpe',
