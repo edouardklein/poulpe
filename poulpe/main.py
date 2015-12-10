@@ -111,15 +111,21 @@ def init():
     dst_dir = os.getcwd()
     logging.info('Creating a new case')
     cmd('git init')
+    # Linking executable files
     cmd('ln -s '+src_dir+'/post-commit ' + dst_dir +
         '/.git/hooks/')
     cmd('mkdir '+dst_dir+'/.git/artefacts')
     cmd('ln -s '+src_dir+'/artefacts/* '+dst_dir+'/.git/artefacts/')
+    # Linking resources
     cmd('mkdir '+dst_dir+'/.git/icons')
     cmd('ln -s '+src_dir+'/img/* '+dst_dir+'/.git/icons/')
+    # Creating a dummy first commit because our post-commit script fails
+    # when called on the first commit of a repo
     cmd('touch .gitignore')
     cmd('git add .gitignore')
     cmd('git commit -m "Initial commit"')
+    # Creating the branch where the index will be stored
+    cmd('git branch index')
 
 
 def main():

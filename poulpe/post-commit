@@ -3,6 +3,8 @@ import logging
 from glob import glob
 import os
 from poulpe import cmd
+import tempfile
+import sys
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -20,6 +22,29 @@ files = [f for f in files if f != '']
 # Run all artefacts programs on each file
 for art in glob(CWD+'/.git/artefacts/*'):
     logging.info('Running artefact finder for '+art)
-    for fname in files:
+    for fname in [f for f in files if not f.startswith('index/')]:
         logging.info('on file : '+fname)
         cmd(art+' index "'+fname+'" '+CWD+'/index')
+
+# Add the index in the appropriate branch
+with tempfile.TemporaryDirectory() as tmpdirname:
+    logging.info('Cloning into '+tmpdirname)
+    os.chdir(tmpdirname)
+    cmd('git clone '+CWD+' .')
+    if not 'index' in cmd('git branch -a'):
+        logging.info('No index branch (This is an error if this is not the first commit)')
+        sys.exit()
+    logging.info('Commiting index changes')
+    cmd('git checkout -b index origin/index')
+    cmd('rm -rf index')
+    cmd('cp -r '+CWD+'/index index')
+    cmd('git add index/**')
+    cmd('git commit -m "Index update after commit "'+commit)
+    logging.info('Fetching and merging index changes')
+    os.chdir(CWD)
+    cmd('git fetch '+tmpdirname+' index:index')
+    cmd('git add index/**')
+    cmd('git stash')
+    cmd('git merge index')
+    cmd('git stash pop')
+# cmd()
