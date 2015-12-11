@@ -16,3 +16,5 @@ It is then possible to visualize the corresponding graph by calling::
     $ pouple viz example.tlp
 
 The .tlp file you specify on the command line will be created if it does not exist, and updated if it exists.
+
+A companion file (ending in .all.tlp) is also created, that contains all nodes and edges in the index. You can remove nodes and edges in the .tlp file without loosing information because they are still stored in the .all.tlp file. Removing nodes and edges is very useful to reduce clutter in the graph and remove parasite artefacts.

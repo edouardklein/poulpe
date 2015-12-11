@@ -39,64 +39,94 @@ def parse_index(index):
     return b2f, a2b
 
 
-def update_graph_with_index(graph, index):
-    '''Return the given tulip graph updated with the given index.
+def add_node(graph, name):
+    '''Add the specified node to the graph, return the graph
 
-    Modify graph as well, but this may change in the future.'''
+    Modify graph as well, but this may change in the future'''
     name_prop = graph.getStringProperty('Name')
     view_shape = graph.getIntegerProperty('viewShape')
     view_icon = graph.getStringProperty('viewFontAwesomeIcon')
     view_label = graph.getStringProperty('viewLabel')
     view_texture = graph.getStringProperty('viewTexture')
+
+    node = graph.addNode()
+    name_prop.setNodeValue(node, name)
+    view_label.setNodeValue(node, ':'.join(name.split(':')[1:]))
+    view_shape.setNodeValue(node, tlp.NodeShape.FontAwesomeIcon)
+    shape = name.split(':')[0]
+    if shape == 'file':
+        if name.split(':')[1][:2] == 'PV':
+            view_icon.setNodeValue(node, tlp.TulipFontAwesome.Legal)
+        else:
+            view_icon.setNodeValue(node, tlp.TulipFontAwesome.File)
+    elif shape == 'IPv4':
+        view_icon.setNodeValue(node, tlp.TulipFontAwesome.Desktop)
+    elif shape == 'email':
+        view_icon.setNodeValue(node, tlp.TulipFontAwesome.Envelope)
+    elif shape == 'domain':
+        view_icon.setNodeValue(node, tlp.TulipFontAwesome.MapSigns)
+    elif shape == 'BTC':
+        view_icon.setNodeValue(node, tlp.TulipFontAwesome.Dollar)
+    elif shape == 'onion':
+        view_shape.setNodeValue(node, tlp.NodeShape.Billboard)
+        view_texture.setNodeValue(node, os.getcwd()+'/.git/icons/onion.png')
+    else:
+        view_icon.setNodeValue(node, tlp.TulipFontAwesome.Stop)
+    return graph
+
+
+def add_edge(graph, edge, no_such_node=lambda e: False):
+    '''Add the specified edge to the graph, return the graph
+
+    Modify graph as well, but this may change in the future'''
+    name_prop = graph.getStringProperty('Name')
+    name2node = lambda name: [n for n in graph.getNodes()
+                              if name_prop.getNodeValue(n) == name][0]
+    try:
+        graph.addEdge(*map(name2node, edge))
+    except IndexError as e:  # No such node, callback
+        if no_such_node(e):
+            raise Exception()
+    return graph
+
+
+def update_graph_with_index(all_graph, graph, index):
+    '''Return the given tulip graph updated with the given index.
+
+    Modify graph as well, but this may change in the future.'''
     blob2fnames, artefact2blobs = parse_index(index)
 
-    known_names = set(name_prop.getNodeValue(n) for n in graph.getNodes())
+    name_prop = all_graph.getStringProperty('Name')
+
+    known_names = set(name_prop.getNodeValue(n) for n in all_graph.getNodes())
     all_names = set(sum(blob2fnames.values(), [])) | set(artefact2blobs.keys())
     new_names = all_names - known_names
     for name in new_names:
-        node = graph.addNode()
-        name_prop.setNodeValue(node, name)
-        view_label.setNodeValue(node, ':'.join(name.split(':')[1:]))
-        view_shape.setNodeValue(node, tlp.NodeShape.FontAwesomeIcon)
-        shape = name.split(':')[0]
-        if shape == 'file':
-            if name.split(':')[1][:2] == 'PV':
-                view_icon.setNodeValue(node, tlp.TulipFontAwesome.Legal)
-            else:
-                view_icon.setNodeValue(node, tlp.TulipFontAwesome.File)
-        elif shape == 'IPv4':
-            view_icon.setNodeValue(node, tlp.TulipFontAwesome.Desktop)
-        elif shape == 'email':
-            view_icon.setNodeValue(node, tlp.TulipFontAwesome.Envelope)
-        elif shape == 'domain':
-            view_icon.setNodeValue(node, tlp.TulipFontAwesome.MapSigns)
-        elif shape == 'BTC':
-            view_icon.setNodeValue(node, tlp.TulipFontAwesome.Dollar)
-        elif shape == 'onion':
-            view_shape.setNodeValue(node, tlp.NodeShape.Billboard)
-            view_texture.setNodeValue(node, os.getcwd()+'/.git/icons/onion.png')
-        else:
-            view_icon.setNodeValue(node, tlp.TulipFontAwesome.Stop)
+        graph = add_node(graph, name)
+        all_graph = add_node(all_graph, name)
 
-    known_edges = set(tuple(map(name_prop.getNodeValue, graph.ends(edge)))
-                      for edge in graph.getEdges())
+    known_edges = set(tuple(map(name_prop.getNodeValue, all_graph.ends(edge)))
+                      for edge in all_graph.getEdges())
     all_edges = set((art, fname) for art in artefact2blobs
                     for blob in artefact2blobs[art]
                     for fname in blob2fnames[blob])
     new_edges = all_edges - known_edges
     for edge in new_edges:
-        name2node = lambda name: [n for n in graph.getNodes()
-                                  if name_prop.getNodeValue(n) == name][0]
-        graph.addEdge(*map(name2node, edge))
-    return graph
+        graph = add_edge(graph, edge)
+        all_graph = add_edge(all_graph, edge, no_such_node=lambda e: True)
+    return all_graph, graph
 
 
 def viz(graph_file):
     '''Visualize the artefact->file graph'''
+    all_graph_file = graph_file[:-3]+'all.tlp'
+    all_graph = tlp.loadGraph(all_graph_file) or tlp.newGraph()
     graph = tlp.loadGraph(graph_file) or tlp.newGraph()  # loadGraph() Returns
     # None if error, instead of raising an exception
-    graph = update_graph_with_index(graph, os.getcwd()+'/index')
+    all_graph, graph = update_graph_with_index(all_graph, graph,
+                                               os.getcwd()+'/index')
     tlp.saveGraph(graph, graph_file)
+    tlp.saveGraph(all_graph, all_graph_file)
     tlpgui.createNodeLinkDiagramView(graph)
     action = input("Tulip visualization launched, press [Enter] to quit,"
                    "type 'discard' and then [Enter] not to save the graph"
