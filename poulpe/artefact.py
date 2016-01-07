@@ -5,9 +5,6 @@ from .util import cmd, lines
 import magic
 import re
 import shlex
-from pdfminer import high_level
-import ezodf
-from lxml import etree
 import io
 
 
@@ -19,20 +16,19 @@ def validate(index, artefact_type):
         cmd('mkdir -p '+index+'/'+artefact_type)
 
 
+def tika_text(fname):
+    '''Run tika-app on a file to extract a text version'''
+    return cmd('tika-app --text '+fname)
+
+
 def text_data(fname):
     '''Return the text in fname, with best effort conversion'''
     mime = str(magic.Magic(mime=True).from_file(fname))
     logging.info('MIME Type : '+mime)
     if 'text/' in mime or 'rfc822' in mime:
         return open(fname, 'r', encoding='utf8').read()
-    elif 'pdf' in mime:
-        s = io.StringIO()
-        high_level.extract_text_to_fp(open(fname, 'rb'), s)
-        s.seek(0)
-        return s.read()
-    elif 'opendocument' in mime:
-        doc = ezodf.opendoc(fname)
-        return etree.tostring(doc.content.xmlnode, pretty_print=True).decode('utf8')
+    elif 'pdf' or 'opendocument' in mime:
+        return tika_text(fname)
     else:
         return ''
 
