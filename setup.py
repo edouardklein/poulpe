@@ -25,6 +25,10 @@ requirements = [
     'lxml'
 ]
 
+
+# To install, run:
+# sudo PYTHONPATH=/usr/local/lib/python/ LD_LIBRARY_PATH=/usr/local/lib/ make install
+# because tulip puts its python modules and its libraries in /usr/local/lib
 try:
     import tulip
 except Exception as e:
