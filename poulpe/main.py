@@ -3,18 +3,22 @@
 poulpe init
 poulpe viz <graph_file>
 """
-from docopt import docopt
 import os
 import logging
-from poulpe import cmd, lines
+from docopt import docopt
 from tulip import *
 from tulipogl import *
 from tulipgui import *
 from collections import defaultdict
 from glob import glob
+from poulpe import cmd, lines
 
 
-logging.basicConfig(level=logging.INFO)
+#  rm -rf graphs/* .git index; poulpe init; git add PV_constat_initiale_KLEIN.odt ; git commit -m 'PV de constatation initiale'; poulpe viz graphs/test.tlp
+
+
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def parse_index(index):
@@ -75,13 +79,18 @@ def add_node(graph, name):
     return graph
 
 
+def get_name2node(graph):
+    '''Return the function that maps a name to a tulip node'''
+    name_prop = graph.getStringProperty('Name')
+    return lambda name: [n for n in graph.getNodes()
+                         if name_prop.getNodeValue(n) == name][0]
+
+
 def add_edge(graph, edge, no_such_node=lambda e: False):
     '''Add the specified edge to the graph, return the graph
 
     Modify graph as well, but this may change in the future'''
-    name_prop = graph.getStringProperty('Name')
-    name2node = lambda name: [n for n in graph.getNodes()
-                              if name_prop.getNodeValue(n) == name][0]
+    name2node = get_name2node(graph)
     try:
         graph.addEdge(*map(name2node, edge))
     except IndexError as e:  # No such node, callback
@@ -90,22 +99,40 @@ def add_edge(graph, edge, no_such_node=lambda e: False):
     return graph
 
 
+def copy_layout(from_gr, to_gr):
+    '''Copy layout of nodes from subgraph from_gr to nodes in to_gr'''
+    for n in from_gr.getNodes():
+        if to_gr.isElement(n):
+            to_gr["viewLayout"][n] = from_gr["viewLayout"][n]
+        for m in (m for m in from_gr.getInNodes(n) if to_gr.isElement(m)):
+            e = to_gr.existEdge(m, n)
+            if e:
+                to_gr["viewLayout"][e] = from_gr["viewLayout"][e]
+
+
 def update_graph_with_index(all_graph, graph, index):
     '''Return the given tulip graph updated with the given index.
 
     Modify graph as well, but this may change in the future.'''
+    all_name_prop = all_graph.getStringProperty('Name')
+    name_prop = graph.getStringProperty('Name')
+    view_color = graph.getColorProperty('viewColor')
+    name2node = get_name2node(graph)
+
+    # Load Index
     blob2fnames, artefact2blobs = parse_index(index)
 
-    name_prop = all_graph.getStringProperty('Name')
 
-    known_names = set(name_prop.getNodeValue(n) for n in all_graph.getNodes())
+    # Add new nodes
+    known_names = set(all_name_prop.getNodeValue(n) for n in all_graph.getNodes())
     all_names = set(sum(blob2fnames.values(), [])) | set(artefact2blobs.keys())
     new_names = all_names - known_names
     for name in new_names:
         graph = add_node(graph, name)
         all_graph = add_node(all_graph, name)
 
-    known_edges = set(tuple(map(name_prop.getNodeValue, all_graph.ends(edge)))
+    # Add new edges
+    known_edges = set(tuple(map(all_name_prop.getNodeValue, all_graph.ends(edge)))
                       for edge in all_graph.getEdges())
     all_edges = set((art, fname) for art in artefact2blobs
                     for blob in artefact2blobs[art]
@@ -114,11 +141,58 @@ def update_graph_with_index(all_graph, graph, index):
     for edge in new_edges:
         graph = add_edge(graph, edge)
         all_graph = add_edge(all_graph, edge, no_such_node=lambda e: True)
+
+    # Change color of old nodes
+    for node in [node for node in graph.getNodes() if
+                 name_prop.getNodeValue(node) in known_names]:
+        if view_color.getNodeValue(node) == tlp.Color(255, 0, 0):  # Red
+            logging.debug('Changing it')
+            view_color.setNodeValue(node, tlp.Color(95, 95, 255))  # Blue
+        # If it is not red, it means it is either already blue, or
+        # the user changed it, so we keep it that way.
+
+    # Layout of new nodes
+    # Ispired by : http://sourceforge.net/p/auber/discussion/206282/thread/517b26b4/
+    new_nodes_subgraph = graph.inducedSubGraph([name2node(name) for name in new_names])
+    ds = tlp.getDefaultPluginParameters("FM^3 (OGDF)", new_nodes_subgraph)
+    ds["Unit edge length"] = 5  # Ta gueule c'est magique
+    new_nodes_subgraph.applyLayoutAlgorithm("FM^3 (OGDF)",
+                                             new_nodes_subgraph['viewLayout'], ds)
+    copy_layout(new_nodes_subgraph, graph)
+    graph.delAllSubGraphs(new_nodes_subgraph)
+
+
     return all_graph, graph
 
 
 def viz(graph_file):
-    '''Visualize the artefact->file graph'''
+    '''Visualize the artefact->file graph
+
+    This is intended to be used as such : the user...
+    - 'git add' some files
+    - commits them, triggerring the artefact detection and the update of the index/
+    - vizualize the result, coloring, deleting and moving nodes as necessary
+    - Repeat.
+
+
+
+    The graph is stored in the index/ subfolder.
+    This method loads the graph structure from index/, and updates the graph files
+    so that they reflect index/'s state.
+
+    The file ending in .all.tlp contains all the nodes and edges in index/
+    The .tlp file has probably been edited by the user using Tulip, which include
+    removing irrelevant nodes and edges.
+    To avoid reintroducing nodes and edges the user has removed, we only add
+    in the .tlp file the nodes and edges that are not already in the .all.tlp file.
+    We also add them to the .all.tlp file.
+
+    New nodes will be colored red, while known nodes that are not red keep their color
+    and old nodes that are red are painted blue.
+
+    New nodes will be placed using a force-directed layout algorithm. Old nodes keep
+    their positions
+    '''
     all_graph_file = graph_file[:-3]+'all.tlp'
     all_graph = tlp.loadGraph(all_graph_file) or tlp.newGraph()
     graph = tlp.loadGraph(graph_file) or tlp.newGraph()  # loadGraph() Returns
