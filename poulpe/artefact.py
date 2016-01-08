@@ -18,7 +18,7 @@ def validate(index, artefact_type):
 
 def tika_text(fname):
     '''Run tika-app on a file to extract a text version'''
-    return cmd('tika-app --text '+fname)
+    return cmd('tika-app --text "'+fname+'"')
 
 
 def text_data(fname):
