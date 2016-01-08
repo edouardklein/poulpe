@@ -24,4 +24,4 @@ if __name__ == '__main__':
     index = arguments['<index>']
     artefact.validate(index, 'onion')
     artefact.index_regex(index, fname, 'onion',
-                         '[_\-0-9a-z]+\.onion')
+                         '([_\-0-9a-z]+\.onion)')

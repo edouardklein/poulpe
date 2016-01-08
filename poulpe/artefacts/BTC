@@ -24,4 +24,4 @@ if __name__ == '__main__':
     index = arguments['<index>']
     artefact.validate(index, 'BTC')
     artefact.index_regex(index, fname, 'BTC',
-                         '[13][a-km-zA-HJ-NP-Z0-9]{25,34}')
+                         '([13][a-km-zA-HJ-NP-Z0-9]{25,34})')

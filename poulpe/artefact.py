@@ -121,8 +121,10 @@ def add_record(index, artefact_type, artefact, fname):
 
 
 def index_regex(index, fname, artefact_type, regex):
-    '''Populate the index with all instances of regex found in fname'''
+    '''Populate the index with all instances of regex found in fname
+
+    We assume that the group 1 of the Regex is the one we want to capture'''
     text = text_data(fname)
-    for art in set(map(lambda x: x.group(0),
+    for art in set(map(lambda x: x.group(1),
                        re.finditer(regex, text))):
         add_record(index, artefact_type, art, fname)

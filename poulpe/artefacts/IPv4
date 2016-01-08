@@ -11,7 +11,7 @@ from poulpe import artefact
 logging.basicConfig(level=logging.DEBUG)
 
 base_ten_byte_re = '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)'
-ipv4_regex = (base_ten_byte_re+'\.')*3+base_ten_byte_re
+ipv4_regex = '('+(base_ten_byte_re+'\.')*3+base_ten_byte_re+')'
 
 if __name__ == '__main__':
     arguments = docopt(__doc__)
