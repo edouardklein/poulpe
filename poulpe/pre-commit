@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+import logging
+from glob import glob
+import os
+from poulpe import cmd
+import tempfile
+import sys
+logging.basicConfig(level=logging.DEBUG)
+
+
+CWD = os.getcwd()
+
+# List all staged content that was Added, Copied, Modified or Renamed
+# man git-diff
+files = cmd('git diff --cached --name-only --diff-filter=ACMR').split('\n')
+files = [f for f in files if f != '']
+
+# Run all artefacts programs on each file
+for art in glob(CWD+'/.git/artefacts/*'):
+    logging.info('Running artefact finder for '+art)
+    for fname in [f for f in files if not f.startswith('index/')]:
+        logging.info('on file : '+fname)
+        cmd(art+' index "'+fname+'" '+CWD+'/index')

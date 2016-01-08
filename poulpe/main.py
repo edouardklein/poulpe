@@ -216,6 +216,8 @@ def init():
     logging.info('Creating a new case')
     cmd('git init')
     # Linking executable files
+    cmd('ln -s '+src_dir+'/pre-commit ' + dst_dir +
+        '/.git/hooks/')
     cmd('ln -s '+src_dir+'/post-commit ' + dst_dir +
         '/.git/hooks/')
     cmd('mkdir '+dst_dir+'/.git/artefacts')
