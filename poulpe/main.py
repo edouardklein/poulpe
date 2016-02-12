@@ -59,7 +59,7 @@ def add_node(graph, name):
     view_shape.setNodeValue(node, tlp.NodeShape.FontAwesomeIcon)
     shape = name.split(':')[0]
     if shape == 'file':
-        if name.split(':')[1][:2] == 'PV':
+        if name.split(':')[1][:10] == 'procedure/':
             view_icon.setNodeValue(node, tlp.TulipFontAwesome.Legal)
         else:
             view_icon.setNodeValue(node, tlp.TulipFontAwesome.File)
