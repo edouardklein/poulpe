@@ -153,14 +153,9 @@ def update_graph_with_index(all_graph, graph, index):
 
     # Layout of new nodes
     # Ispired by : http://sourceforge.net/p/auber/discussion/206282/thread/517b26b4/
-    new_nodes_subgraph = graph.inducedSubGraph([name2node(name) for name in new_names])
-    ds = tlp.getDefaultPluginParameters("FM^3 (OGDF)", new_nodes_subgraph)
+    ds = tlp.getDefaultPluginParameters("FM^3 (OGDF)", graph)
     ds["Unit edge length"] = 5  # Ta gueule c'est magique
-    new_nodes_subgraph.applyLayoutAlgorithm("FM^3 (OGDF)",
-                                             new_nodes_subgraph['viewLayout'], ds)
-    copy_layout(new_nodes_subgraph, graph)
-    graph.delAllSubGraphs(new_nodes_subgraph)
-
+    graph.applyLayoutAlgorithm("FM^3 (OGDF)", graph['viewLayout'], ds)
 
     return all_graph, graph
 
